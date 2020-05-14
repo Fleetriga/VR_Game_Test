@@ -8,6 +8,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Ignore unitys meta files
+*.meta
+
 # User-specific files
 *.rsuser
 *.suo
