@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        characterController.detectCollisions = false;
     }
 
     // Update is called once per frame

@@ -36,6 +36,10 @@ public class VRInputs : MonoBehaviour
         }
     }
 
+    public Vector3 GetHandVelocity()
+    {
+        return new Vector3();
+    }
 
 
     // Update is called once per frame

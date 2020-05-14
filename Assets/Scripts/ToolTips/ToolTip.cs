@@ -12,7 +12,7 @@ public abstract class ToolTip : MonoBehaviour
     [SerializeField] GameObject toolTipGameObject;
     TextMeshProUGUI toolTipText;
 
-    void Awake()
+    void Start()
     {
         toolTipText = toolTipGameObject.transform.GetChild(0).GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>();
         toolTipText.text = GenerateToolTip();
