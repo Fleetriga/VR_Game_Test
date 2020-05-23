@@ -18,7 +18,7 @@ public class Edge : MonoBehaviour
     {
         master = GetComponentInParent<EdgeMaster>();
         triggered = false;
-        raycastSource = GetComponentInChildren<Transform>();
+        raycastSource = transform.GetChild(0).transform;
     }
 
     void OnTriggerEnter(Collider other)

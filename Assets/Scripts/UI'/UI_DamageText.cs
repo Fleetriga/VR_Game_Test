@@ -18,7 +18,7 @@ public class UI_DamageText : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.up * Time.deltaTime * 0.5f);
+        transform.Translate(Vector3.up * Time.deltaTime * 0.5f, Space.World);
 
         if ((Time.time - startTime) > LifeTime)
         {
@@ -34,7 +34,10 @@ public class UI_DamageText : MonoBehaviour
 
     public void UpdatePositionAndValue(Vector3 pos, string val)
     {
-        transform.position = new Vector3(pos.x, Camera.main.transform.position.y, pos.z);
+        //Move to point of contact and forward a bit so that the text isn't obscured
+        transform.position = pos;
+        transform.Translate(transform.forward * -0.5f, Space.World);
+
         startTime = Time.time;
         text.alpha = 1;
         text.text = val;

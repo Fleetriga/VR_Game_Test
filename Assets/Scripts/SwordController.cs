@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 using Valve.VR;
 using Valve.VR.InteractionSystem;
@@ -35,6 +36,9 @@ public class SwordController : MonoBehaviour
         teleporting = false;
         damageAllowed = true;
         weaponStats = new WeaponStats(startStats);
+
+        //Debug purposed just bind it at the start
+        BindSword();
     }
 
     private void Update()
@@ -110,7 +114,7 @@ public class SwordController : MonoBehaviour
         {
             damageAllowed = false;
             currentDamageCooldownStart = Time.time;
-            other.GetComponentInParent<NonPlayerCharacter>().TakeDamage(weaponStats, transform.position);
+            other.GetComponentInParent<NonPlayerCharacter>().TakeDamage(weaponStats, ContactPoint());
         }
     }
 
@@ -131,10 +135,7 @@ public class SwordController : MonoBehaviour
             currentResistance += other.GetComponent<BodyPart>().Resistance * Time.deltaTime;
             if (damageAllowed)
             {
-                //Find point of contact.
-                RaycastHit hit;
-                Physics.Raycast(edgeMaster.CurrentEdgesRaycastSource.position, new Vector3(1,0,0), out hit, Mathf.Infinity, 9);
-                other.GetComponentInParent<NonPlayerCharacter>().TakeSliceDamage(weaponStats, hit.point);
+                other.GetComponentInParent<NonPlayerCharacter>().TakeSliceDamage(weaponStats, ContactPoint());
 
                 damageAllowed = false;
                 currentDamageCooldownStart = Time.time;
@@ -145,6 +146,19 @@ public class SwordController : MonoBehaviour
             damageAllowed = false;
             //Phase weapon
         }
+    }
+
+    Vector3 ContactPoint()
+    {
+        //Find point of contact, hitting only NPCs.
+        RaycastHit hit;
+        LayerMask lm = 1 << 9;
+
+        Physics.Raycast(edgeMaster.CurrentEdgesRaycastSource.position, edgeMaster.CurrentEdgesRaycastSource.right, out hit, Mathf.Infinity, lm);
+
+        Debug.Log(hit.collider.name);
+
+        return hit.point;
     }
 
 }

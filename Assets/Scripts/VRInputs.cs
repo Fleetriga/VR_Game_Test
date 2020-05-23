@@ -62,4 +62,7 @@ public class VRInputs : MonoBehaviour
             TrackPadNorthUp?.Invoke(hands[1], EventArgs.Empty);
         }
     }
+
+
+
 }

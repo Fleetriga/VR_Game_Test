@@ -8,12 +8,10 @@ public class EdgeMaster : MonoBehaviour
 {
     //1. point 2. left 3. right 4. tang
     [SerializeField] Edge[] Edges;
-    [SerializeField] GameObject debugDirecitonIndicator;
-    Vector3 edgeDirection;
-    public Vector3 EdgeDirection { get => edgeDirection; set => edgeDirection = value; }
-
+    
     Transform currentEdgesRaycastSource;
     public Transform CurrentEdgesRaycastSource { get => currentEdgesRaycastSource; }
+
 
     public void EdgeTriggered(int ID)
     {
@@ -23,9 +21,6 @@ public class EdgeMaster : MonoBehaviour
         }
 
         Hand possiblyAttached = GetComponentInParent<Interactable>().attachedToHand;
-        if (possiblyAttached == null) { edgeDirection = GetComponentInParent<Rigidbody>().velocity.normalized; }
-        else { edgeDirection = possiblyAttached.GetTrackedObjectVelocity().normalized; }
-
         currentEdgesRaycastSource = Edges[ID].RaycastSource;
     }
 
@@ -35,7 +30,6 @@ public class EdgeMaster : MonoBehaviour
         {
             e.gameObject.SetActive(true);
         }
-        debugDirecitonIndicator.SetActive(false);
         currentEdgesRaycastSource = null;
     }
 }
