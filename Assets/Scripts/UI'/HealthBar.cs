@@ -31,6 +31,11 @@ public class HealthBar : MonoBehaviour
         }
 
         actualBar.fillAmount = pct;
+
+        if (pct <= 0)
+        {
+            Destroy(this);
+        }
     }
 
     private void LateUpdate()

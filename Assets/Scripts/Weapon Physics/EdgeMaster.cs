@@ -26,6 +26,14 @@ public class EdgeMaster : MonoBehaviour
 
     public void EdgeExit()
     {
+        StartCoroutine(DelayEdgeExit());
+    }
+
+    //Gives a short damage cooldown to the player.
+    IEnumerator DelayEdgeExit()
+    {
+        yield return new WaitForSeconds(0.5f);
+
         foreach (Edge e in Edges)
         {
             e.gameObject.SetActive(true);

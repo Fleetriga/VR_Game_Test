@@ -14,10 +14,13 @@ public abstract class NonPlayerCharacter : MonoBehaviour
     float currentSliceDamage;
 
     public event Action<float> HealthValueChanged = delegate { };
+    public bool IsDead => realStats.Health <= 0;
 
     void Awake()
     {
         realStats = new CharacterStats(startingStats);
+        SetNPCRigidbodies(true);
+        SetNPCColliders(false);
     }
 
     void Update()
@@ -39,6 +42,8 @@ public abstract class NonPlayerCharacter : MonoBehaviour
         temp.GetComponent<UI_DamageText>().UpdatePositionAndValue(damageLoc, damageSource.Attack.ToString());
 
         currentSliceDamage = damageSource.Attack;
+
+        if (realStats.Health <= 0) { Die(); }
     }
 
     public void TakeSliceDamage(Stats damageSource, Vector3 damageLoc)
@@ -50,7 +55,45 @@ public abstract class NonPlayerCharacter : MonoBehaviour
         HealthValueChanged?.Invoke(realStats.HealthPct);
 
         trackedSliceDamage.UpdatePositionAndValue(damageLoc, currentSliceDamage.ToString());
+
+        if (realStats.Health <= 0) { Die(); }
     }
+
+    void SetNPCRigidbodies(bool state)
+    {
+        Rigidbody[] rigidbodies = GetComponentsInChildren<Rigidbody>();
+
+        foreach (Rigidbody rb in rigidbodies)
+        {
+            rb.isKinematic = state;
+        }
+
+        GetComponent<Rigidbody>().isKinematic = !state;
+    }
+
+    void Die()
+    {
+        GetComponentInChildren<Animator>().enabled = false;
+        SetNPCRigidbodies(false);
+        SetNPCColliders(true);
+
+        Destroy(gameObject, 3);
+    }
+
+    void SetNPCColliders(bool state)
+    {
+        Collider[] colliders = GetComponentsInChildren<Collider>();
+
+        foreach (Collider c in colliders)
+        {
+            c.enabled = state;
+        }
+
+        GetComponent<Collider>().enabled = !state;
+    }
+
+
+
 
 
 }

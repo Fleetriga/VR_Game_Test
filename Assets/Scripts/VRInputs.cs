@@ -12,7 +12,12 @@ public class VRInputs : MonoBehaviour
 
     public static VRInputs VRInputsInstance = null;
 
-    //Input - Trigger held down
+    //Input - Grip down
+    [SerializeField] SteamVR_Action_Boolean gripInput;
+    public delegate void SideGripDownEventHandler(Hand source, EventArgs args);
+    public event SideGripDownEventHandler SideGripDown;
+
+    //Input - Trigger
     [SerializeField] SteamVR_Action_Boolean triggerInput;
     public delegate void TriggerDownEventHandler(Hand source, EventArgs args);
     public event TriggerDownEventHandler TriggerDown;
@@ -45,6 +50,18 @@ public class VRInputs : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Check either left or right hand
+        // Side grip
+        if (gripInput[hands[0].handType].stateDown)
+        {
+            SideGripDown?.Invoke(hands[0], EventArgs.Empty);
+        }
+        if (gripInput[hands[1].handType].stateDown)
+        {
+            SideGripDown?.Invoke(hands[1], EventArgs.Empty);
+        }
+
+        //Track pad
         if (triggerInput[hands[0].handType].stateDown)
         {
             TriggerDown?.Invoke(hands[0], EventArgs.Empty);
@@ -53,7 +70,9 @@ public class VRInputs : MonoBehaviour
         {
             TriggerDown?.Invoke(hands[1], EventArgs.Empty);
         }
-        if (trackPadNorthInput[hands[0].handType].stateDown || trackPadNorthInput[hands[1].handType].stateDown)
+
+        //Trigger
+        if (triggerInput[hands[0].handType].stateDown || trackPadNorthInput[hands[1].handType].stateDown)
         {
             TrackPadNorthDown?.Invoke(hands[1], EventArgs.Empty);
         }

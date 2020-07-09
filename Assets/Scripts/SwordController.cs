@@ -22,8 +22,13 @@ public class SwordController : MonoBehaviour
     //Attacking
     bool damageAllowed;
     float currentResistance;
+    //Time based damage
     [SerializeField] float damageCooldown = 0.1f;
-    float currentDamageCooldownStart = 0f;
+    //float currentDamageCooldownStart = 0f;
+    //Distance based damage
+    float distanceFromLastDamage = 0f;
+    Vector3 lastDamagingStrikeLocation;
+    Vector3 currentStrikeLocation;
 
     EdgeMaster edgeMaster;
 
@@ -32,7 +37,7 @@ public class SwordController : MonoBehaviour
     {
         interactable = GetComponent<Interactable>();
         edgeMaster = GetComponentInChildren<EdgeMaster>();
-        VRInputs.VRInputsInstance.TriggerDown += OnTriggerDown;
+        VRInputs.VRInputsInstance.SideGripDown += OnTriggerDown;
         teleporting = false;
         damageAllowed = true;
         weaponStats = new WeaponStats(startStats);
@@ -43,11 +48,24 @@ public class SwordController : MonoBehaviour
 
     private void Update()
     {
-        if (!damageAllowed && (Time.time - currentDamageCooldownStart) > damageCooldown)
+        //For timing based damage
+        //if (!damageAllowed && (Time.time - currentDamageCooldownStart) > damageCooldown)
+        //{
+        //    damageAllowed = true;
+        //}
+
+        //Set distance from last damage
+        distanceFromLastDamage = Vector3.Distance(currentStrikeLocation, lastDamagingStrikeLocation);
+
+        //For distance based damage
+        if (!damageAllowed && distanceFromLastDamage >= damageCooldown)
         {
             damageAllowed = true;
         }
     }
+
+
+    #region Weapon Attachment
 
     public void OnTriggerDown(Hand source, EventArgs args)
     {
@@ -103,18 +121,54 @@ public class SwordController : MonoBehaviour
         foreach (Transform t in transform) { t.gameObject.layer = givenLayer; }
     }
 
+    #endregion
 
+
+    #region Weapon Damage
 
     //Cause Damage to the enemy
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.layer != 9) { return; }
+        if (other.GetComponentInParent<NonPlayerCharacter>().IsDead) { ConveyForce(other); return; }
 
         if (damageAllowed)
         {
-            damageAllowed = false;
-            currentDamageCooldownStart = Time.time;
+            OnCauseDamage();
+            lastDamagingStrikeLocation = ContactPoint();
             other.GetComponentInParent<NonPlayerCharacter>().TakeDamage(weaponStats, ContactPoint());
+        }
+    }
+    void OnTriggerStay(Collider other)
+    {
+        if (other.gameObject.layer != 9) { return; }
+        if (other.GetComponentInParent<NonPlayerCharacter>().IsDead)
+        {
+            if (interactable.attachedToHand != null)
+            {
+                ConveyForce(other);
+            }
+            return;
+        }
+
+        if (currentResistance <= weaponStats.Slice)
+        {
+            //Time based
+            currentResistance += other.GetComponent<BodyPart>().Resistance * Time.deltaTime;
+            //Distance based
+            currentStrikeLocation = ContactPoint();
+
+            if (damageAllowed)
+            {
+                other.GetComponentInParent<NonPlayerCharacter>().TakeSliceDamage(weaponStats, ContactPoint());
+
+                OnCauseDamage();
+            }
+        }
+        else
+        {
+            damageAllowed = false;
+            //Phase weapon
         }
     }
 
@@ -123,29 +177,18 @@ public class SwordController : MonoBehaviour
         if (other.gameObject.layer != 9) { return; }
 
         currentResistance = 0;
-        currentDamageCooldownStart = Time.time;
+        damageAllowed = true;
     }
 
-    void OnTriggerStay(Collider other)
+    void ConveyForce(Collider other)
     {
-        if (other.gameObject.layer != 9) { return; }
+        other.GetComponent<Rigidbody>().AddForce(interactable.attachedToHand.GetTrackedObjectVelocity() * 50, ForceMode.Impulse);
+    }
 
-        if (currentResistance <= weaponStats.Slice)
-        {
-            currentResistance += other.GetComponent<BodyPart>().Resistance * Time.deltaTime;
-            if (damageAllowed)
-            {
-                other.GetComponentInParent<NonPlayerCharacter>().TakeSliceDamage(weaponStats, ContactPoint());
-
-                damageAllowed = false;
-                currentDamageCooldownStart = Time.time;
-            }
-        }
-        else
-        {
-            damageAllowed = false;
-            //Phase weapon
-        }
+    void OnCauseDamage()
+    {
+        damageAllowed = false;
+        lastDamagingStrikeLocation = ContactPoint();
     }
 
     Vector3 ContactPoint()
@@ -156,10 +199,8 @@ public class SwordController : MonoBehaviour
 
         Physics.Raycast(edgeMaster.CurrentEdgesRaycastSource.position, edgeMaster.CurrentEdgesRaycastSource.right, out hit, Mathf.Infinity, lm);
 
-        Debug.Log(hit.collider.name);
-
         return hit.point;
     }
-
+    
+    #endregion
 }
-        
