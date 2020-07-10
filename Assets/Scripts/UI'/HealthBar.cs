@@ -34,7 +34,7 @@ public class HealthBar : MonoBehaviour
 
         if (pct <= 0)
         {
-            Destroy(this);
+            Destroy(gameObject);
         }
     }
 

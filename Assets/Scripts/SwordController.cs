@@ -11,13 +11,17 @@ public class SwordController : MonoBehaviour
 
     [SerializeField] AudioSource audioSource;
     [SerializeField] AudioClip phaseSound;
+    [SerializeField] AudioClip bindingSound;
     [SerializeField] WeaponStatsAsset startStats;
     private Interactable interactable;
     WeaponStats weaponStats;
 
     //Teleporting
-    Boolean swordBound;
     private bool teleporting;
+
+    //Binding
+    bool swordBound;
+    bool binding;
 
     //Attacking
     bool damageAllowed;
@@ -37,13 +41,13 @@ public class SwordController : MonoBehaviour
     {
         interactable = GetComponent<Interactable>();
         edgeMaster = GetComponentInChildren<EdgeMaster>();
-        VRInputs.VRInputsInstance.SideGripDown += OnTriggerDown;
+        VRInputs.VRInputsInstance.SideGripDown += OnGripDown;
         teleporting = false;
         damageAllowed = true;
         weaponStats = new WeaponStats(startStats);
 
         //Debug purposed just bind it at the start
-        BindSword();
+        //BindSword();
     }
 
     private void Update()
@@ -67,7 +71,7 @@ public class SwordController : MonoBehaviour
 
     #region Weapon Attachment
 
-    public void OnTriggerDown(Hand source, EventArgs args)
+    public void OnGripDown(Hand source, EventArgs args)
     {
         //switch (swordBound, interactable.attachedToHand == null) 
         //{
@@ -83,7 +87,7 @@ public class SwordController : MonoBehaviour
         }
         else if (!swordBound && interactable.attachedToHand != null)
         {
-            BindSword();
+            StartCoroutine(BindSword());
         }
     }
 
@@ -108,11 +112,16 @@ public class SwordController : MonoBehaviour
             GetComponent<CollisionSound>().OutputAllowed = true;
         }
     }
-
-    private void BindSword()
+    
+    IEnumerator BindSword()
     {
+        binding = true;
+        audioSource.clip = bindingSound;
+        audioSource.Play();
+        yield return new WaitForSeconds(3.8f);
+
         swordBound = true;
-        //some effects
+        transform.GetChild(4).GetChild(0).GetComponent<ParticleSystem>().Play();
     }
 
     public void SwitchLayer(int givenLayer)

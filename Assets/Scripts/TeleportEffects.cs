@@ -9,6 +9,9 @@ public class TeleportEffects : MonoBehaviour
     [SerializeField] GameObject cameraFeed;
     [SerializeField] GameObject actualCamera;
 
+    AudioSource audio;
+    [SerializeField] AudioClip teleportClip;
+
     [SerializeField] float teleportTime;
     float startTeleportTime;
 
@@ -17,6 +20,8 @@ public class TeleportEffects : MonoBehaviour
     void Start()
     {
         this.cameraFeedPlane.sharedMaterial.SetFloat("Vector1_3CFA44D2", 1.5f);
+        audio = GetComponent<AudioSource>();
+        audio.clip = teleportClip;
         teleporting = true;
     }
 
@@ -26,15 +31,18 @@ public class TeleportEffects : MonoBehaviour
         cameraFeed.transform.position = actualCamera.transform.position;
         cameraFeed.transform.rotation = actualCamera.transform.rotation;
 
+        //Play teleport sound
+        audio.Play();
+
         //Start corroutine to disolve the plane
         StartCoroutine(DisolveCameraFeed());
     }
 
     void Update()
     {
+        cameraFeedPlane.sharedMaterial.SetFloat("Vector1_3CFA44D2", (((Time.time - startTeleportTime) / teleportTime) * 1.5f)); //Don't want it stuck on the screen
         if (teleporting)
         {
-            cameraFeedPlane.sharedMaterial.SetFloat("Vector1_3CFA44D2", (((Time.time - startTeleportTime) / teleportTime) * 1.5f));
             cameraFeed.transform.rotation = actualCamera.transform.rotation;
             //cameraFeed.transform.position = actualCamera.transform.position;
         }
