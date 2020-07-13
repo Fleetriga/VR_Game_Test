@@ -16,9 +16,12 @@ public abstract class NonPlayerCharacter : MonoBehaviour
     public event Action<float> HealthValueChanged = delegate { };
     public bool IsDead => realStats.Health <= 0;
 
+    static Animator anim;
+
     void Awake()
     {
         realStats = new CharacterStats(startingStats);
+        anim = GetComponentInChildren<Animator>();
         SetNPCRigidbodies(true);
         SetNPCColliders(false);
     }
