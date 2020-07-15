@@ -16,7 +16,7 @@ public abstract class NonPlayerCharacter : MonoBehaviour
     public event Action<float> HealthValueChanged = delegate { };
     public bool IsDead => realStats.Health <= 0;
 
-    static Animator anim;
+    protected static Animator anim;
 
     void Awake()
     {
@@ -89,13 +89,20 @@ public abstract class NonPlayerCharacter : MonoBehaviour
 
         foreach (Collider c in colliders)
         {
-            c.enabled = state;
+            if (c.gameObject.layer == 9) //If it's an NPC collider
+            {
+                c.enabled = state;
+            }
         }
 
         GetComponent<Collider>().enabled = !state;
     }
 
-
+    public Animator SetAttackIndex(int val)
+    {
+        anim.SetInteger("attack", val);
+        return anim;
+    }
 
 
 

@@ -13,6 +13,10 @@ public class TestNPC : NonPlayerCharacter
     // Update is called once per frame
     void Update()
     {
-        
+        Debug.Log("Triggered");
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            anim.SetInteger("attack", 1);
+        }
     }
 }
