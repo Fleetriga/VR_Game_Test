@@ -13,6 +13,8 @@ public class PlayerMovement : MonoBehaviour
     TeleportEffects teleportEffects;
     CharacterController characterController;
 
+    [SerializeField] float TeleportDistance = 3;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,8 +32,24 @@ public class PlayerMovement : MonoBehaviour
         Vector3 direction = source.transform.forward;
         direction.y = 0;
 
-        //Dash distance in that direction FIRST IN XZ, Y later
-        characterController.Move(direction * 3);
+        //Check there's no wall in the way
+        RaycastHit raycastHit;
+        int layerMask = 1 << 14;
+        bool hit = Physics.Raycast(transform.position, direction, out raycastHit, TeleportDistance, layerMask);
+
+        //Disable characterController because this overrides changes to transform
+        GetComponent<CharacterController>().enabled = false;
+
+        //Teleport to the wall if hit, otherwise teleport full distance 
+        if (hit)
+        {
+            transform.position = raycastHit.point;
+        }
+        else
+        {
+            transform.position = transform.position + (direction * TeleportDistance);
+        }
+        GetComponent<CharacterController>().enabled = true;
 
     }
 
